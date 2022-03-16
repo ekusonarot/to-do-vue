@@ -22,13 +22,63 @@
       .v-application {
         font-family: "Noto Sans JP", sans-serif;
       }
+      .v-btn {
+        margin: 0 0 40px 0;
+      }
     </style>
   </head>
   <body>
     <div id="app">
-      <!--  -->
-      この部分を編集してね
-      <!--  -->
+      <v-app-bar>TO-DO</v-app-bar>
+      <v-container>
+        <v-row>
+          <v-col
+            md="6"
+            xs="12"
+          >
+            <v-form @submit.prevent>
+              <v-text-field v-model="title" label="タイトル" placeholder="タイトルを入力してください"></v-text-field>
+              <v-textarea v-model="desc" color="teal" label="説明" placeholder="説明を入力してください"></v-text-field>
+            </v-form>
+            <v-btn
+              block
+              :disabled=" title=='' || desc=='' "
+              @click="onClickHandle"
+            >
+              追加
+            </v-btn>
+          </v-col>
+          <v-col
+            md="6"
+            xs="12"
+          >
+            <v-btn
+              block
+              color="red"
+              @click="onRemoveHandle"
+              :disabled="!checkbox()"
+            >
+              削除
+            </v-btn>
+            <v-expansion-panels>
+              <v-expansion-panel
+                v-for="(todo,i) in todoList"
+                :key="i"
+              >
+                <v-expansion-panel-header>
+                  <v-checkbox
+                    v-model="todo.check"
+                    :label="todo.title"
+                  />
+                </v-expansion-panel-header>
+                <v-expansion-panel-content>
+                  {{todo.desc}}
+                </v-expansion-panel-content>
+              </v-expansion-panel>
+            </v-expansion-panels>
+          </v-col>
+        </v-row>
+      </v-container>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
@@ -37,7 +87,13 @@
         el: "#app",
         vuetify: new Vuetify(),
         data() {
-          return {};
+          return {
+            title: "",
+            desc: "",
+            todoList: [
+              {title: "test", desc: "testtest", check: false},
+            ],
+          };
         },
         watch: {},
         computed: {},
@@ -45,7 +101,22 @@
         beforeMount() {},
         mounted() {},
         beforeDestroy() {},
-        methods: {},
+        methods: {
+          onClickHandle: function(e) {
+            e.preventDefault();
+            this.todoList.push({title: this.title, desc: this.desc, check: false});
+            this.title = "";
+            this.desc = "";
+          },
+          checkbox: function() {
+            const is_checked = this.todoList.filter( todo=> todo.check);
+            return 0 < is_checked.length;
+          },
+          onRemoveHandle: function(e){
+            e.preventDefault();
+            this.todoList = this.todoList.filter( todo=> !todo.check);
+          },
+        },
       });
     </script>
   </body>
