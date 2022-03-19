@@ -38,7 +38,8 @@
           >
             <v-form @submit.prevent>
               <v-text-field v-model="title" label="タイトル" placeholder="タイトルを入力してください"></v-text-field>
-              <v-textarea v-model="desc" color="teal" label="説明" placeholder="説明を入力してください"></v-text-field>
+              <v-textarea v-model="desc" color="teal" label="説明" placeholder="説明を入力してください"></v-textarea>
+              <input type="date" v-model="date">
             </v-form>
             <v-btn
               block
@@ -65,10 +66,10 @@
                 v-for="(todo,i) in todoList"
                 :key="i"
               >
-                <v-expansion-panel-header>
+                <v-expansion-panel-header :style="getColor(todo)">
                   <v-checkbox
                     v-model="todo.check"
-                    :label="todo.title"
+                    :label="getTitle(todo)"
                   />
                 </v-expansion-panel-header>
                 <v-expansion-panel-content>
@@ -88,11 +89,11 @@
         vuetify: new Vuetify(),
         data() {
           return {
+            now: Date.now(),
             title: "",
             desc: "",
-            todoList: [
-              {title: "test", desc: "testtest", check: false},
-            ],
+            date: "",
+            todoList: [],
           };
         },
         watch: {},
@@ -104,9 +105,14 @@
         methods: {
           onClickHandle: function(e) {
             e.preventDefault();
-            this.todoList.push({title: this.title, desc: this.desc, check: false});
+            this.todoList.push({title: this.title, desc: this.desc, check: false, date: this.date});
+            this.todoList.sort(function(a,b) {
+              if (a.date<b.date) return -1;
+              return 1;
+            });
             this.title = "";
             this.desc = "";
+            this.date = "";
           },
           checkbox: function() {
             const is_checked = this.todoList.filter( todo=> todo.check);
@@ -116,8 +122,23 @@
             e.preventDefault();
             this.todoList = this.todoList.filter( todo=> !todo.check);
           },
+          getTitle: function(todo) {
+            return todo.date != ""? todo.title +'  (' + todo.date + '締め切り！！！)': todo.title;
+          },
+          getColor: function(todo) {
+            console.log(Date.parse(todo.date) - this.now);
+            if (!todo.date) return "background-color: white;";
+            if (Date.parse(todo.date) - this.now < 60*60*24*3*1000) return "background-color: rgb(233, 104, 104);";
+            if (Date.parse(todo.date) - this.now < 60*60*24*7*1000) return "background-color: rgb(220, 223, 88);";
+            return "background-color: white;";
+          },
         },
       });
     </script>
   </body>
 </html>
+<style>
+.v-label {
+  width: fit-content;
+}
+</style>
